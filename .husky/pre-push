@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+###########################################################
+# stop push to protected branch
+###########################################################
+readonly PROTECTED_BRANCHES="(master|main|develop)"
+while read local_ref local_oid remote_ref remote_oid
+do
+
+  TAG_NAME="${remote_ref/refs\/tags\//}"
+  if [[ "${remote_ref}" =~ ^refs/tags/.*$ ]]; then
+    echo "\\033[31m!!! NOT ALLOW PUSH on '$TAG_NAME' tag!!!\\033[m"
+    exit 1
+  fi
+
+  BRANCH_NAME="${remote_ref/refs\/heads\//}"
+  echo "$BRANCH_NAME, $remote_ref"
+  if [[ "$BRANCH_NAME" =~ $PROTECTED_BRANCHES ]]; then
+    echo "\\033[31m!!! NOT ALLOW PUSH on '$BRANCH_NAME' branch!!!\\033[m"
+    exit 1
+  fi
+done

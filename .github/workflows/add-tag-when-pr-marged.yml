@@ -1,0 +1,61 @@
+name: add tag when pr marged
+on:
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+env:
+  GH_USER_EMAIL: 41898282+github-acitons[bot]@users.noreply.github.com
+  GH_USER_NAME: github-acitons[bot]
+
+jobs:
+  add-tag:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2.2.4
+        with:
+          version: 7
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+
+      - name: get package version
+        run: |
+          version=`cat package.json | jq -r '.version'`
+          pkg_name=`cat package.json | jq -r '.name | split("/") | .[1]'`
+          new_tag="${pkg_name}@${version}"
+          echo "NEW_VERSION=${version}"
+          echo "NEW_TAG=${new_tag}"
+          echo "NEW_VERSION=${version}" >> $GITHUB_ENV
+          echo "NEW_TAG=${new_tag}" >> $GITHUB_ENV
+
+      - name: check package version
+        run: |
+          # check package.version
+          exists=`npm view "${{ env.NEW_TAG }}" version > /dev/null 2>&1 && echo $? || echo $?`
+          if [ ! "$exists" -eq "0" ]; then
+            echo "can publish version: ${{ env.NEW_TAG }}"
+          else
+            echo "::error ${{ env.NEW_TAG }} is already exists in npmjs"
+            exit 1
+          fi
+
+      - name: check tag version
+        run: |
+          # check tag version
+          exists=`git ls-remote --exit-code -t origin ${{ env.NEW_TAG }} > /dev/null 2>&1 && echo $? || echo $?`
+          if [ ! "$exists" -eq "0" ]; then
+            echo "can publish tag: ${{ env.NEW_TAG }}"
+          else
+            echo "::error tags/${{ env.NEW_TAG }} is already exists in refs/tags"
+            exit 1
+          fi
+
+      - name: push tag
+        run: |
+          git config --global user.name ${{ env.GH_USER_NAME }}
+          git config --global user.email ${{ env.GH_USER_EMAIL }}
+          git tag -a ${{ env.NEW_TAG }} -m "RELEASE ${{ env.NEW_TAG }}"
+          git push origin ${{ env.NEW_TAG }}

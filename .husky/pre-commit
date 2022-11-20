@@ -1,0 +1,35 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+###########################################################
+# stop commit to protected branch
+###########################################################
+readonly PROTECTED_BRANCHES="(master|main|develop)"
+readonly BRANCH_NAME=`git symbolic-ref HEAD | sed -e 's:^refs/heads/::'`
+if [[ "${BRANCH_NAME}" =~ $PROTECTED_BRANCHES ]]; then
+  echo "\\033[31m!!! NOT ALLOW COMMIT on "${BRANCH_NAME}" branch!!!\\033[m"
+  exit 1
+fi
+
+###########################################################
+# check remain conflict files
+###########################################################
+if git rev-parse --verify HEAD >/dev/null 2>&1
+then
+  against=HEAD
+else
+  # Initial commit: diff against an empty tree object
+  against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+fi
+for FILE in `git diff-index --name-status $against | cut -c3-`; do
+  if [ -e $FILE ]; then
+    # skip deleted files
+    continue
+  fi
+  grep_result=`grep -E '(<<<<<<<|>>>>>>>)' $FILE | grep -v '^$'`
+  if [ -n "${grep_result}" ]; then
+    echo "\\033[31m!!! REMAIN CONFLICT in $FILE!!!\\033[m"
+    echo $grep_result
+    exit 1
+  fi
+done

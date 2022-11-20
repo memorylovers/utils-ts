@@ -1,0 +1,39 @@
+changelog:
+  exclude:
+    labels:
+      - bug-report
+      - feature-request
+      - good first issue
+      - help wanted
+      - invalid
+      - question
+      - duplicate
+      - wontfix
+      - ignore-for-release
+    authors:
+      - octocat
+  categories:
+    - title: 🚀 Enhancement
+      labels:
+        - enhancement
+    - title: 🐛 Bug Fixes
+      labels:
+        - bug
+    - title: 🏡 Maintenance
+      labels:
+        - chore
+    - title: 💅 Refactoring
+      labels:
+        - refactor
+    - title: 📖 Documentation
+      labels:
+        - documentation
+    - title: ⛓️ Dependency update
+      labels:
+        - dependencies
+    - title: ⚠️  Breaking Changes
+      labels:
+        - breaking-change
+    - title: Other Changes
+      labels:
+        - "*"
