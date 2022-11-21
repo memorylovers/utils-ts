@@ -48,7 +48,7 @@ body:
         1. ...
         2. ...
     validations:
-      required: true
+      required: false
 
   - type: textarea
     id: system-info
@@ -58,7 +58,7 @@ body:
       render: Shell
       placeholder: System, Binaries, Browsers
     validations:
-      required: true
+      required: false
 
   - type: dropdown
     id: package-manager
@@ -70,7 +70,7 @@ body:
         - yarn
         - pnpm
     validations:
-      required: true
+      required: false
 
   - type: textarea
     id: additional-comments
