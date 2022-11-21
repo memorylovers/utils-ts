@@ -1,6 +1,6 @@
 {
   "name": "@memorylovers/utils-ts",
-  "version": "0.1.0-beta.1",
+  "version": "0.1.0",
   "description": "Collection of tiny utilities for TypeScript",
   "author": "Memory Lovers, LLC<https://github.com/memorylovers>",
   "license": "MIT",
